@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 import { initializeVMSTables } from '../../db/utils';
 
 export async function POST(request: NextRequest) {
+
   try {
 
     // Check authentication
@@ -35,4 +36,5 @@ export async function POST(request: NextRequest) {
     );
 
   }
+
 }
