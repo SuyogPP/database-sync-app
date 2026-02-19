@@ -15,14 +15,14 @@ import { Spinner } from '@/components/ui/spinner';
 import { CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 
 interface SyncRecord {
-  SyncID: number;
-  FileName: string;
-  UploadedAt: string;
-  TotalRecords: number;
-  SuccessCount: number;
-  FailureCount: number;
-  Status: string;
-  UploadedByUser: string;
+  id: string;
+  file_name: string;
+  created_at: string;
+  total_records: number;
+  success_count: number;
+  failure_count: number;
+  status: string;
+  uploaded_by: string;
 }
 
 interface SyncHistoryProps {
@@ -128,28 +128,28 @@ export function SyncHistory({ moduleApi }: SyncHistoryProps) {
               </TableHeader>
               <TableBody>
                 {history.map((record) => (
-                  <TableRow key={record.SyncID}>
+                  <TableRow key={record.id}>
                     <TableCell className="font-medium max-w-xs truncate">
-                      {record.FileName}
+                      {record.file_name}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(record.UploadedAt)}
+                      {formatDate(record.created_at)}
                     </TableCell>
-                    <TableCell className="text-center">{record.TotalRecords}</TableCell>
+                    <TableCell className="text-center">{record.total_records}</TableCell>
                     <TableCell className="text-center text-green-600 font-medium">
-                      {record.SuccessCount}
+                      {record.success_count}
                     </TableCell>
                     <TableCell className="text-center text-red-600 font-medium">
-                      {record.FailureCount}
+                      {record.failure_count}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-1">
-                        {getStatusIcon(record.Status)}
-                        {getStatusBadge(record.Status)}
+                        {getStatusIcon(record.status)}
+                        {getStatusBadge(record.status)}
                       </div>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {record.UploadedByUser}
+                      {record.uploaded_by}
                     </TableCell>
                   </TableRow>
                 ))}

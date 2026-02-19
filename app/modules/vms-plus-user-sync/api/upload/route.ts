@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { getSession } from '@/lib/session';
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if VMS tables exist, initialize if not
+    // Check if VMS tables exist, initialize if not (will fetch config from Supabase automatically if not provided)
     const tablesExist = await checkVMSTablesExist();
     if (!tablesExist) {
       console.log('[v0] VMS tables do not exist, initializing...');
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Sync data to database
-    const result = await syncUserData(users, file.name, session.username);
+    const result = await syncUserData(users, file.name, session.email || 'Anonymous');
 
     return NextResponse.json(
       {

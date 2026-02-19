@@ -10,7 +10,7 @@ import { LogOut } from 'lucide-react';
 
 interface Session {
   userId: string;
-  username: string;
+  email: string | undefined;
 }
 
 const modules = [
@@ -73,7 +73,7 @@ export default function Dashboard() {
           <div>
             <h1 className="text-2xl font-bold">Database Data SYNC APP</h1>
             {session && (
-              <p className="text-sm text-muted-foreground">Welcome, {session.username}</p>
+              <p className="text-sm text-muted-foreground">Welcome, {session.email}</p>
             )}
           </div>
           <Button

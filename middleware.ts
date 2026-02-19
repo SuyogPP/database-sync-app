@@ -1,30 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { updateSession } from '@/utils/supabase/middleware';
 
-const protectedRoutes = [
-  '/dashboard',
-  '/modules',
-  '/api/modules',
-];
-
-const authRoutes = ['/api/auth'];
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Check if it's a protected route
-  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
-
-  if (isProtectedRoute) {
-    const sessionCookie = request.cookies.get('datasync_session');
-
-    if (!sessionCookie) {
-      // Redirect to login for protected routes
-      const loginUrl = new URL('/', request.url);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
-  return NextResponse.next();
+export async function middleware(request: NextRequest) {
+  return await updateSession(request);
 }
 
 export const config = {

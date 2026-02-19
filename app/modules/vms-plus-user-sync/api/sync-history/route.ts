@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
+import { createClient } from '@/utils/supabase/server';
 import { getSyncHistory, getSyncDetails } from '../../db/utils';
 
 export async function GET(request: NextRequest) {
@@ -16,8 +17,8 @@ export async function GET(request: NextRequest) {
     const syncId = searchParams.get('syncId');
 
     if (syncId) {
-      // Get details for specific sync
-      const details = await getSyncDetails(parseInt(syncId));
+      // Get details for specific sync (will fetch config from Supabase automatically if not provided)
+      const details = await getSyncDetails(syncId);
       if (!details) {
         return NextResponse.json({ error: 'Sync not found' }, { status: 404 });
       }
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: details }, { status: 200 });
     }
 
-    // Get sync history
+    // Get sync history (will fetch config from Supabase automatically if not provided)
     const history = await getSyncHistory(limit);
 
     return NextResponse.json({ data: history }, { status: 200 });

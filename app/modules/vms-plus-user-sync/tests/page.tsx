@@ -237,11 +237,11 @@ export default function DatabaseTestPage() {
               <div className="space-y-2 text-sm font-mono">
                 <div>
                   <span className="text-muted-foreground">Server:</span>{' '}
-                  <code>{process.env.NEXT_PUBLIC_DB_SERVER || 'Not configured'}</code>
+                  <code>{process.env.SQL_SERVER || 'Not configured'}</code>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Database:</span>{' '}
-                  <code>{process.env.NEXT_PUBLIC_DB_NAME || 'Not configured'}</code>
+                  <code>{process.env.SQL_DATABASE || 'Not configured'}</code>
                 </div>
                 <div className="mt-4 text-xs text-muted-foreground">
                   Note: Make sure to configure SQL_SERVER, SQL_DATABASE, SQL_USER, and SQL_PASSWORD

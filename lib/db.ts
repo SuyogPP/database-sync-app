@@ -9,13 +9,31 @@ try {
 }
 
 let connectionPool: any = null;
+let currentConfigHash: string | null = null;
 
-export async function getConnection(): Promise<any> {
+export interface DBConfig {
+  server?: string;
+  database?: string;
+  user?: string;
+  password?: string;
+  connectionString?: string;
+}
+
+export async function getConnection(dynamicConfig?: DBConfig): Promise<any> {
   if (!mssql) {
     throw new Error(
       'SQL Server driver (mssql) is not properly configured. ' +
-      'Please ensure SQL_SERVER_CONNECTION_STRING environment variable is set.'
+      'Please ensure SQL_SERVER environment variables are set.'
     );
+  }
+
+  const config = buildConnectionConfig(dynamicConfig);
+  const configHash = JSON.stringify(config);
+
+  // If config changed, close old pool
+  if (connectionPool && currentConfigHash !== configHash) {
+    console.log('[v0] Database configuration changed, closing existing pool');
+    await closeConnection();
   }
 
   if (connectionPool && !connectionPool.closed) {
@@ -23,20 +41,21 @@ export async function getConnection(): Promise<any> {
   }
 
   try {
-    const config = buildConnectionConfig();
     connectionPool = new mssql.ConnectionPool(config);
+    currentConfigHash = configHash;
     await connectionPool.connect();
     console.log('[v0] Database connection pool established');
     return connectionPool;
   } catch (error) {
     connectionPool = null;
+    currentConfigHash = null;
     console.error('[v0] Database connection error:', error);
     throw new Error('Failed to connect to database. Check your connection configuration.');
   }
 }
 
-function buildConnectionConfig(): any {
-  const connectionString = process.env.SQL_SERVER_CONNECTION_STRING;
+function buildConnectionConfig(dynamicConfig?: DBConfig): any {
+  const connectionString = dynamicConfig?.connectionString || process.env.SQL_SERVER_CONNECTION_STRING;
 
   if (connectionString) {
     return {
@@ -52,13 +71,13 @@ function buildConnectionConfig(): any {
 
   // Fallback configuration
   return {
-    server: process.env.SQL_SERVER || 'localhost',
-    database: process.env.SQL_DATABASE || 'DataSyncDB',
+    server: dynamicConfig?.server || process.env.SQL_SERVER || 'localhost',
+    database: dynamicConfig?.database || process.env.SQL_DATABASE || 'DataSyncDB',
     authentication: {
       type: 'default',
       options: {
-        userName: process.env.SQL_USER || 'sa',
-        password: process.env.SQL_PASSWORD || '',
+        userName: dynamicConfig?.user || process.env.SQL_USER || 'sa',
+        password: dynamicConfig?.password || process.env.SQL_PASSWORD || '',
       },
     },
     options: {
@@ -84,9 +103,10 @@ export async function closeConnection(): Promise<void> {
 
 export async function executeQuery<T = any>(
   query: string,
-  params: Record<string, any> = {}
+  params: Record<string, any> = {},
+  dynamicConfig?: DBConfig
 ): Promise<T[]> {
-  const pool = await getConnection();
+  const pool = await getConnection(dynamicConfig);
   const request = pool.request();
 
   Object.entries(params).forEach(([key, value]) => {
@@ -103,13 +123,14 @@ export async function executeQuery<T = any>(
 }
 
 export async function executeTransaction(
-  callback: (request: any) => Promise<void>
+  callback: (request: any) => Promise<void>,
+  dynamicConfig?: DBConfig
 ): Promise<void> {
   if (!mssql) {
     throw new Error('SQL Server driver is not available');
   }
 
-  const pool = await getConnection();
+  const pool = await getConnection(dynamicConfig);
   const transaction = new mssql.Transaction(pool);
 
   try {

@@ -19,7 +19,7 @@ A modular, full-stack application for managing database data synchronization fro
 - **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS, shadcn/ui
 - **Backend**: Next.js API Routes
 - **Database**: SQL Server with mssql driver
-- **Authentication**: Custom session-based with HTTP-only cookies
+- **Authentication**: Supabase Auth with cookie-based session management
 - **File Processing**: XLSX and PapaParse for Excel/CSV parsing
 
 ## Getting Started
@@ -42,15 +42,17 @@ pnpm install
 cp .env.local.example .env.local
 ```
 
-3. Configure your SQL Server connection in `.env.local`:
+3. Configure your environment variables in `.env.local`:
 ```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+# SQL Server Configuration
 SQL_SERVER=your-server-name
 SQL_DATABASE=DataSyncDB
 SQL_USER=sa
 SQL_PASSWORD=your-password
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=your-password
-SESSION_SECRET=your-random-secret
 ```
 
 ### Running Locally
@@ -64,7 +66,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Initial Setup
 
-1. **Login**: Use the credentials from your `.env.local` file (default: admin/admin123)
+1. **Login**: Use an email and password from your Supabase project's Authentication table.
 2. **Initialize Database**: Go to Dashboard → Database Tests → Click "Initialize Schema"
 3. **Run Tests**: Click "Run Tests" to verify database connectivity
 4. **Upload Data**: Use the VMS PLUS USER SYNC module to upload user data files
