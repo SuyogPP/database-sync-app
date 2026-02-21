@@ -19,6 +19,10 @@ export interface DBConfig {
   connectionString?: string;
 }
 
+/**
+ * Get a connection pool to SQL Server.
+ * @param dynamicConfig - Optional configuration object. If provided (e.g., from Supabase), it overrides env vars.
+ */
 export async function getConnection(dynamicConfig?: DBConfig): Promise<any> {
   if (!mssql) {
     throw new Error(
