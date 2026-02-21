@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import { getSession } from '@/lib/session';
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if VMS tables exist, initialize if not
+    // Check if VMS tables exist, initialize if not (will fetch config from Supabase automatically if not provided)
     const tablesExist = await checkVMSTablesExist();
     if (!tablesExist) {
       console.log('[v0] VMS tables do not exist, initializing...');
@@ -57,11 +58,15 @@ export async function POST(request: NextRequest) {
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
       users = jsonData.map((row: any) => ({
-        Email: row.Email || '',
-        FirstName: row.FirstName || '',
-        LastName: row.LastName || '',
-        Department: row.Department || '',
-        Status: row.Status || 'Active',
+        User_Name: row.User_Name || '',
+        Full_name: row.Full_name || '',
+        Password: row.Password || '',
+        Email_Id: row.Email_Id || '',
+        Phone: row.Phone || '',
+        Role_ID: Number(row.Role_ID) || 0,
+        Company_ID: Number(row.Company_ID) || 0,
+        Status: row.Status ?? 1,
+        UserType: row.UserType || '',
       }));
     } else if (isCSV) {
       // Parse CSV file
@@ -76,13 +81,18 @@ export async function POST(request: NextRequest) {
       });
 
       users = parseResult.data.map((row: any) => ({
-        Email: row.Email || '',
-        FirstName: row.FirstName || '',
-        LastName: row.LastName || '',
-        Department: row.Department || '',
-        Status: row.Status || 'Active',
+        User_Name: row.User_Name || '',
+        Full_name: row.Full_name || '',
+        Password: row.Password || '',
+        Email_Id: row.Email_Id || '',
+        Phone: row.Phone || '',
+        Role_ID: Number(row.Role_ID) || 0,
+        Company_ID: Number(row.Company_ID) || 0,
+        Status: row.Status ?? 1,
+        UserType: row.UserType || '',
       }));
     }
+
 
     // Validate CSV data
     const validation = validateCSVData(users);
@@ -97,7 +107,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Sync data to database
-    const result = await syncUserData(users, file.name, session.username);
+    const result = await syncUserData(users, file.name, session.email || 'Anonymous');
 
     return NextResponse.json(
       {

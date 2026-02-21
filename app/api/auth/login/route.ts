@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSession, validateCredentials } from '@/lib/session';
+import { createClient } from '@/utils/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,22 +8,23 @@ export async function POST(request: NextRequest) {
 
     if (!username || !password) {
       return NextResponse.json(
-        { error: 'Username and password are required' },
+        { error: 'Email and password are required' },
         { status: 400 }
       );
     }
 
-    const isValid = await validateCredentials(username, password);
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: username, // Assuming username is email for Supabase Auth
+      password,
+    });
 
-    if (!isValid) {
+    if (error) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
+        { error: error.message },
         { status: 401 }
       );
     }
-
-    // Create session
-    const sessionId = await createSession(username, username);
 
     return NextResponse.json(
       { success: true, message: 'Login successful' },

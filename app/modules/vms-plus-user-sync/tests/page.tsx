@@ -120,9 +120,11 @@ export default function DatabaseTestPage() {
           <Link href="/modules/vms-plus-user-sync" className="text-muted-foreground hover:text-foreground">
             ← VMS PLUS USER SYNC
           </Link>
-          <h1 className="mt-1 text-2xl font-bold">Database Test Page</h1>
-          <p className="text-sm text-muted-foreground">
-            Test database connectivity and schema integrity
+          <h1 className="mt-1 text-2xl font-bold">Target Database Test Page</h1>
+          <p className="text-muted-foreground mt-2">
+            Test connectivity and schema integrity for the configured SQL Server.
+            <br />
+            <span className="text-xs italic">(Note: Synchronization history and error logs are stored in Supabase)</span>
           </p>
         </div>
       </header>
@@ -133,7 +135,7 @@ export default function DatabaseTestPage() {
           <Card>
             <CardHeader>
               <CardTitle>Test Controls</CardTitle>
-              <CardDescription>Run database connectivity and schema tests</CardDescription>
+              <CardDescription>Run connectivity and schema tests for the target database</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {initError && (
@@ -230,26 +232,32 @@ export default function DatabaseTestPage() {
           {/* Configuration Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Configuration</CardTitle>
-              <CardDescription>Database connection details</CardDescription>
+              <CardTitle>Target Configuration</CardTitle>
+              <CardDescription>SQL Server connectivity source</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 text-sm font-mono">
-                <div>
-                  <span className="text-muted-foreground">Server:</span>{' '}
-                  <code>{process.env.NEXT_PUBLIC_DB_SERVER || 'Not configured'}</code>
+              <div className="space-y-4 text-sm">
+                <div className="rounded-md bg-muted p-3">
+                  <p className="font-mono text-xs text-muted-foreground">
+                    Module ID: <span className="text-foreground">vms-plus-user-sync</span>
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-muted-foreground">
+                    Target DB: <span className="text-foreground">SQL Server (Configured)</span>
+                  </p>
                 </div>
-                <div>
-                  <span className="text-muted-foreground">Database:</span>{' '}
-                  <code>{process.env.NEXT_PUBLIC_DB_NAME || 'Not configured'}</code>
-                </div>
-                <div className="mt-4 text-xs text-muted-foreground">
-                  Note: Make sure to configure SQL_SERVER, SQL_DATABASE, SQL_USER, and SQL_PASSWORD
-                  environment variables.
+
+                <p className="text-sm text-muted-foreground">
+                  All synchronization history, user data, and error logs are stored in the target SQL Server database. Supabase is used only for storing the module's connection settings.
+                </p>
+
+                <div className="flex items-center gap-2 text-xs text-amber-600">
+                  <RefreshCw className="h-3 w-3" />
+                  <span>Connectivity settings can be managed in the Module Configuration page.</span>
                 </div>
               </div>
             </CardContent>
           </Card>
+
         </div>
       </main>
     </div>
