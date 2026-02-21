@@ -111,27 +111,21 @@ export async function syncUserData(
   let syncId = 0;
 
   await executeTransaction(async (request) => {
-    // Insert sync history record
-    const historyInsert = await request.query(
-      `INSERT INTO VMS_SyncHistory (FileName, TotalRecords, SuccessCount, FailureCount, Status, UploadedByUser, SyncBatchID)
-       VALUES (@fileName, @total, @success, @failure, 'In Progress', @uploadedBy, @batchId);
-       SELECT @@IDENTITY as SyncID`
-    );
-
+    // Bind parameters for sync history insert
     request.input('fileName', sql.NVarChar(255), fileName);
     request.input('total', sql.Int, users.length);
-    request.input('success', sql.Int, 0);
-    request.input('failure', sql.Int, 0);
     request.input('uploadedBy', sql.NVarChar(255), uploadedBy);
     request.input('batchId', sql.NVarChar(50), batchId);
 
+    // Insert sync history record
     const syncResult = await request.query(
       `INSERT INTO VMS_SyncHistory (FileName, TotalRecords, SuccessCount, FailureCount, Status, UploadedByUser, SyncBatchID)
-       VALUES (@fileName, @total, 0, 0, @status, @uploadedBy, @batchId);
+       VALUES (@fileName, @total, 0, 0, 'In Progress', @uploadedBy, @batchId);
        SELECT @@IDENTITY as SyncID`
     );
 
     syncId = syncResult.recordset[0]?.SyncID || 0;
+    console.log('[v0] Created sync history record with SyncID:', syncId);
 
     // Insert user records
     for (let i = 0; i < users.length; i++) {
@@ -184,9 +178,11 @@ export async function syncUserData(
 
     await request.query(
       `UPDATE VMS_SyncHistory
-       SET SuccessCount = @finalSuccess, FailureCount = @finalFailure, Status = @finalStatus
+       SET SuccessCount = @finalSuccess, FailureCount = @finalFailure, Status = @finalStatus, UploadedAt = GETDATE()
        WHERE SyncID = @finalSyncId`
     );
+
+    console.log('[v0] Sync completed. Success:', successCount, 'Failures:', failureCount);
   });
 
   return {

@@ -9,7 +9,7 @@ import { SyncStatusDisplay } from '@/components/sync-status-display';
 import { SyncHistory } from '@/components/sync-history';
 import { Spinner } from '@/components/ui/spinner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Settings, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 interface SyncResult {
   syncId: number;
@@ -105,12 +105,7 @@ export default function VMSPlusUserSync() {
               Synchronize user data from Excel or CSV files
             </p>
           </div>
-          <Link href="/modules/vms-plus-user-sync/tests">
-            <Button variant="outline" size="sm">
-              <Settings className="mr-2 h-4 w-4" />
-              Database Tests
-            </Button>
-          </Link>
+
         </div>
       </header>
 
